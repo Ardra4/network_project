@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Administrator Profile</title>
+
+<style>
+:root {
+  --bg-main:#020617;
+  --bg-card:#0b1220;
+  --bg-panel:#0f172a;
+  --border:#1e293b;
+  --accent:#38bdf8;
+  --success:#22c55e;
+  --danger:#ef4444;
+  --text-main:#e5e7eb;
+  --text-muted:#94a3b8;
+}
+
+* { box-sizing:border-box; font-family:Inter,Segoe UI,sans-serif }
+
+body {
+  margin:0;
+  background:var(--bg-main);
+  color:var(--text-main);
+}
+
+/* Top Bar */
+.topbar {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:18px 36px;
+  border-bottom:1px solid var(--border);
+}
+
+.topbar h1 {
+  font-size:18px;
+  color:var(--accent);
+  margin:0;
+}
+
+.logout-btn, .back-btn {
+  background:var(--accent);
+  border:none;
+  color:#fff;
+  padding:8px 18px;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:600;
+  margin-left:10px;
+}
+.logout-btn:hover, .back-btn:hover { opacity:0.85; }
+
+/* Layout */
+.container {
+  max-width:1300px;
+  margin:36px auto;
+  padding:0 24px;
+}
+
+.profile-grid {
+  display:grid;
+  grid-template-columns:340px 1fr;
+  gap:28px;
+}
+
+/* Sidebar */
+.sidebar {
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:28px;
+}
+
+.avatar {
+  width:130px;
+  height:130px;
+  border-radius:50%;
+  background:var(--bg-panel);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:44px;
+  font-weight:700;
+  color:var(--accent);
+  margin:0 auto 18px;
+}
+
+.name { text-align:center; font-size:20px; font-weight:600 }
+.role { text-align:center; font-size:13px; color:var(--accent) }
+
+.status {
+  margin:18px auto;
+  width:fit-content;
+  padding:4px 14px;
+  border-radius:999px;
+  font-size:12px;
+  background:rgba(34,197,94,.15);
+  color:var(--success);
+  border:1px solid rgba(34,197,94,.4);
+}
+
+.sidebar-info {
+  display:grid;
+  gap:16px;
+  margin-top:20px;
+}
+
+.info-row {
+  display:flex;
+  justify-content:space-between;
+  font-size:13px;
+}
+
+.info-row span { color:var(--text-muted) }
+
+/* Panel */
+.panel {
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:26px;
+}
+
+.panel h2 {
+  font-size:15px;
+  margin-bottom:18px;
+  color:#cbd5f5;
+}
+
+.stats-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:18px;
+}
+
+.stat {
+  text-align:center;
+  padding:20px;
+  border-radius:14px;
+  background:var(--bg-panel);
+  border:1px solid var(--border);
+}
+
+.stat-number {
+  font-size:26px;
+  font-weight:700;
+  color:var(--accent);
+}
+
+.stat-label {
+  font-size:12px;
+  color:var(--text-muted);
+  margin-top:6px;
+}
+
+@media(max-width:900px){
+  .profile-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+  <h1>Network Topology Visualization System</h1>
+  <div>
+    <button class="back-btn" onclick="goToDashboard()">Home</button>
+    
+  </div>
+</div>
+
+<div class="container">
+  <div class="profile-grid">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="avatar" id="avatar">A</div>
+      <div class="name" id="name">Network Administrator</div>
+      <div class="status" id="status">ACTIVE</div>
+
+      <div class="sidebar-info">
+        <div class="info-row"><span>Email</span><div id="email">adminlab@gmail.com</div></div>
+        <div class="info-row"><span>Joined</span><div id="joined">—</div></div>
+        <div class="info-row"><span>Last Login</span><div id="lastLogin">—</div></div>
+        <div class="info-row"><span>Login IP</span><div id="loginIp">—</div></div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="panel">
+      <h2>Scan Activity</h2>
+      <div class="stats-grid">
+        <div class="stat"><div class="stat-number" id="totalScans">—</div><div class="stat-label">Total Scans</div></div>
+        <div class="stat"><div class="stat-number" id="singleScans">—</div><div class="stat-label">Single Scans</div></div>
+        <div class="stat"><div class="stat-number" id="continuousScans">—</div><div class="stat-label">Continuous Scans</div></div>
+        <div class="stat"><div class="stat-number" id="lastScanMode">—</div><div class="stat-label">Last Scan Mode</div></div>
+        <div class="stat"><div class="stat-number" id="lastScanTime">—</div><div class="stat-label">Last Scan Time</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const storedUser = JSON.parse(localStorage.getItem("loggedInUser"));
+const storedScanSummary = JSON.parse(localStorage.getItem("scanSummary"));
+
+if (storedUser) {
+  document.getElementById("avatar").innerText = storedUser.name.charAt(0).toUpperCase();
+  document.getElementById("name").innerText = storedUser.name;
+  document.getElementById("email").innerText = storedUser.email;
+  document.getElementById("joined").innerText = storedUser.joinedDate;
+  document.getElementById("lastLogin").innerText = storedUser.lastLogin;
+  document.getElementById("loginIp").innerText = storedUser.loginIp;
+  document.getElementById("status").innerText = "ACTIVE";
+}
+
+if (storedScanSummary) {
+  document.getElementById("totalScans").innerText = storedScanSummary.total;
+  document.getElementById("singleScans").innerText = storedScanSummary.single;
+  document.getElementById("continuousScans").innerText = storedScanSummary.continuous;
+  document.getElementById("lastScanMode").innerText = storedScanSummary.lastScan.mode;
+  document.getElementById("lastScanTime").innerText = storedScanSummary.lastScan.time;
+}
+
+
+function goToDashboard() {
+  window.location.href = "dashboard.html"; 
+}
+
+function logout() {
+  localStorage.removeItem("loggedInUser");
+  alert("Session terminated");
+  window.location.href = "login.html";
+}
+</script>
+
+</body>
+</html>
